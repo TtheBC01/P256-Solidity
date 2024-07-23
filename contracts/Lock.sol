@@ -1,16 +1,20 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
+import "./P256.sol";
+
 // Uncomment this line to use console.log
 // import "hardhat/console.sol";
 
 contract Lock {
     uint public unlockTime;
     address payable public owner;
+    bytes32 qx;
+    bytes32 qy;
 
     event Withdrawal(uint amount, uint when);
 
-    constructor(uint _unlockTime) payable {
+    constructor(uint _unlockTime, bytes32 _qx, bytes32 _qy) payable {
         require(
             block.timestamp < _unlockTime,
             "Unlock time should be in the future"
@@ -18,14 +22,17 @@ contract Lock {
 
         unlockTime = _unlockTime;
         owner = payable(msg.sender);
+        qx = _qx;
+        qy = _qy;
     }
 
-    function withdraw() public {
+    function withdraw(bytes32 h, bytes32 r, bytes32 s) public {
         // Uncomment this line, and the import of "hardhat/console.sol", to print a log in your terminal
         // console.log("Unlock time is %o and block timestamp is %o", unlockTime, block.timestamp);
 
         require(block.timestamp >= unlockTime, "You can't withdraw yet");
         require(msg.sender == owner, "You aren't the owner");
+        require(P256.verify(h, r, s, qx, qy), "Invalid P256 Signature");
 
         emit Withdrawal(address(this).balance, block.timestamp);
 

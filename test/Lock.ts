@@ -6,6 +6,14 @@ import { expect } from "chai";
 import hre from "hardhat";
 import { getAddress, parseGwei } from "viem";
 
+// You can generate a valide P256 public key at https://toddchapman.io/passkey-demo
+const PUBLIC_KEY = '00043aade15f00ccaf622d850b4c10531a73d487de772f336b23a0ed20fb741f8ebea95971ab64ac631d10d3f63708c3f6482a267704e0fa09fed044b9920f813f6e';
+
+const R_VALUE = 'a034fee6b1cef50fc3a865f84ed60dfe6920ec3d7444a4340845292c1137f72f';
+const S_VALUE = 'c49fc4d8094c30de14bcba8a94e079994c248ea6ad7c867877f7ffd9ef0c3daf';
+
+
+
 describe("Lock", function () {
   // We define a fixture to reuse the same setup in every test.
   // We use loadFixture to run this setup once, snapshot that state,
