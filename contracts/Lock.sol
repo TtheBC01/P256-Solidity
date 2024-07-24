@@ -12,6 +12,8 @@ contract Lock {
     bytes32 qx;
     bytes32 qy;
 
+    uint256 internal constant N = 0xFFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551;
+
     event Withdrawal(uint amount, uint when);
 
     constructor(uint _unlockTime, bytes32 _qx, bytes32 _qy) payable {
@@ -30,6 +32,10 @@ contract Lock {
         // Uncomment this line, and the import of "hardhat/console.sol", to print a log in your terminal
         // console.log("Unlock time is %o and block timestamp is %o", unlockTime, block.timestamp);
 
+        if(uint256(s) > N/2) {
+            uint256 us = N - uint256(s);
+            s = bytes32(us);
+        }
         require(block.timestamp >= unlockTime, "You can't withdraw yet");
         require(msg.sender == owner, "You aren't the owner");
         require(P256.verify(h, r, s, qx, qy), "Invalid P256 Signature");

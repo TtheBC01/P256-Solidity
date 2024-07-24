@@ -6,13 +6,14 @@ import { expect } from "chai";
 import hre from "hardhat";
 import { getAddress, parseGwei } from "viem";
 
-// You can generate a valide P256 public key at https://toddchapman.io/passkey-demo
-const PUBLIC_KEY = '00043aade15f00ccaf622d850b4c10531a73d487de772f336b23a0ed20fb741f8ebea95971ab64ac631d10d3f63708c3f6482a267704e0fa09fed044b9920f813f6e';
+// You can generate new valid P256 parameters at https://toddchapman.io/passkey-demo
+const QX = '0xe5cb61eef9d33263374e67681b575fd29c726f4ab58ae91fd82b6a30e0bb8db1';
+const QY = '0x3523d67086dd12a11da06fe596d361401f0083742de6b84e6044a480280e9e82';
 
-const R_VALUE = 'a034fee6b1cef50fc3a865f84ed60dfe6920ec3d7444a4340845292c1137f72f';
-const S_VALUE = 'c49fc4d8094c30de14bcba8a94e079994c248ea6ad7c867877f7ffd9ef0c3daf';
+const R_VALUE = '0x8c9b6c5d0835936b88a7731ac35f092ef3df3bb21e7ea3fa7a1905b5f6d4a79f';
+const S_VALUE = '0xeafeb326af1f5baf92642ebcbc236dad0510507db9e827e0e1f4500b6f2db164';
 
-
+const HASH = '0x9fb01c132978415b8294215f17ce29e6297b28efd19209ebbdb50bccc6cb888b';
 
 describe("Lock", function () {
   // We define a fixture to reuse the same setup in every test.
@@ -27,7 +28,7 @@ describe("Lock", function () {
     // Contracts are deployed using the first signer/account by default
     const [owner, otherAccount] = await hre.viem.getWalletClients();
 
-    const lock = await hre.viem.deployContract("Lock", [unlockTime], {
+    const lock = await hre.viem.deployContract("Lock", [unlockTime, QX, QY], {
       value: lockedAmount,
     });
 
@@ -74,7 +75,7 @@ describe("Lock", function () {
       // We don't use the fixture here because we want a different deployment
       const latestTime = BigInt(await time.latest());
       await expect(
-        hre.viem.deployContract("Lock", [latestTime], {
+        hre.viem.deployContract("Lock", [latestTime, QX, QY], {
           value: 1n,
         })
       ).to.be.rejectedWith("Unlock time should be in the future");
@@ -86,7 +87,7 @@ describe("Lock", function () {
       it("Should revert with the right error if called too soon", async function () {
         const { lock } = await loadFixture(deployOneYearLockFixture);
 
-        await expect(lock.write.withdraw()).to.be.rejectedWith(
+        await expect(lock.write.withdraw([HASH, R_VALUE, S_VALUE])).to.be.rejectedWith(
           "You can't withdraw yet"
         );
       });
@@ -105,7 +106,7 @@ describe("Lock", function () {
           lock.address,
           { client: { wallet: otherAccount } }
         );
-        await expect(lockAsOtherAccount.write.withdraw()).to.be.rejectedWith(
+        await expect(lockAsOtherAccount.write.withdraw([HASH, R_VALUE, S_VALUE])).to.be.rejectedWith(
           "You aren't the owner"
         );
       });
@@ -118,7 +119,7 @@ describe("Lock", function () {
         // Transactions are sent using the first signer by default
         await time.increaseTo(unlockTime);
 
-        await expect(lock.write.withdraw()).to.be.fulfilled;
+        await expect(lock.write.withdraw([HASH, R_VALUE, S_VALUE])).to.be.fulfilled;
       });
     });
 
@@ -129,7 +130,7 @@ describe("Lock", function () {
 
         await time.increaseTo(unlockTime);
 
-        const hash = await lock.write.withdraw();
+        const hash = await lock.write.withdraw([HASH, R_VALUE, S_VALUE]);
         await publicClient.waitForTransactionReceipt({ hash });
 
         // get the withdrawal events in the latest block
