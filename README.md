@@ -1,4 +1,4 @@
-# P256 Example WIP
+# P256 Example in Solidity
 
 This project demonstrates how to extract the necessary cryptographic components from a WebAuthn public key and its signature as well as construct 
 a message hash such that a P256 signature can be verified in Solidity. 
