@@ -7,6 +7,7 @@ import hre from "hardhat";
 import { getAddress, parseGwei } from "viem";
 
 // You can generate new valid P256 parameters at https://toddchapman.io/passkey-demo
+// The values are avaible in the console
 const QX = '0xe5cb61eef9d33263374e67681b575fd29c726f4ab58ae91fd82b6a30e0bb8db1';
 const QY = '0x3523d67086dd12a11da06fe596d361401f0083742de6b84e6044a480280e9e82';
 

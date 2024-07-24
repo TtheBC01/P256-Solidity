@@ -28,7 +28,7 @@ the public key (QX, QY) and [signature](https://bitcoin.stackexchange.com/questi
 
 ### Constructing the Message Hash
 
-The construction of the message hashed signed by the user's passkey is described in steps 19 and 20 of the [W3C spec section 7.2](https://www.w3.org/TR/webauthn-2/#sctn-verifying-assertion).
+The construction of the message hash signed by the user's passkey is described in steps 19 and 20 of the [W3C spec section 7.2](https://www.w3.org/TR/webauthn-2/#sctn-verifying-assertion).
 
 When a user signature is prompted via `navigator.credentials.get`, the response has four components:
 
