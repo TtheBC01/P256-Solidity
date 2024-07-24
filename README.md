@@ -135,7 +135,7 @@ console.assert(rTypeIndicatorByte === 2, "This is not a signature byte array");
 // r could be less than 32 bytes
 const rLength = signatureView[3];
 
-// Slice out the r value and pad it it is less than 32 bytes
+// Slice out the r value and pad it if it is less than 32 bytes
 const rValueUint8Array = formatInteger(signatureView.slice(4, 4 + rLength));
 const rString = rValueUint8Array.reduce((t, x) => t + x.toString(16).padStart(2, '0'), '');
 
