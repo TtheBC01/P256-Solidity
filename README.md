@@ -19,7 +19,7 @@ The Web Authentication API has been implemented by all major browsers and provid
 Be sure to read the [W3C](https://www.w3.org/TR/webauthn-2/) specification for the WebAuthN API.
 
 Public keys and signature objects are returned in [DER](https://en.wikipedia.org/wiki/X.690#DER_encoding) [ASN.1](https://en.wikipedia.org/wiki/ASN.1) format 
-(Here's a good web-based [ASN.1](http://ldh.org/asn1.html) autodecoder) which is a self-describing data protocol used in many legacy crypto-systems. Using this serialization/deserialization protocol, the relavent components of 
+(here's a good web-based [ASN.1](http://ldh.org/asn1.html) autodecoder) which is a self-describing data protocol used in many legacy crypto-systems. Using this serialization/deserialization protocol, the relavent components of 
 the public key (QX, QY) and [signature](https://bitcoin.stackexchange.com/questions/92680/what-are-the-der-signature-and-sec-format) (r, s) can be extracted and passed to an on-chain smart contract. 
 
 ### Constructing the Message Hash
@@ -42,11 +42,21 @@ const clientDataHash = await crypto.subtle.digest("SHA-256", clientDataUint8Arra
 // concatenate authenticatorData and clientDataHash
 const combinedLength = authenticatorData.byteLength + clientDataHash.byteLength;
 const authMessageBuffer = new ArrayBuffer(combinedLength);
+
+// We'll store all the bytes in a combined view
 const combinedView = new Uint8Array(authMessageBuffer);
+
+// cast the buffers as Uint8Arrays
 const authDataView = new Uint8Array(authenticatorData);
 const cDataHashView = new Uint8Array(clientDataHash);
+
+// Set the appropriate components of the combinedView container
 combinedView.set(authDataView, 0);
 combinedView.set(cDataHashView, authenticatorData.byteLength);
+
+// Finally, you can user crypto.subtle.verify to hash authMessageBuffer and send the result to Solidity
+const authMessageHash = await crypto.subtle.digest("SHA-256", new Uint8Array(authMessageBuffer));
+const authMessageHashString = authMessageHash.reduce((t, x) => t + x.toString(16).padStart(2, '0'), ''); // prepend w/ `0x` and send to Solidity
 ```
 
 Now `authMessageBuffer` contains a byte payload than can be used by `crypto.subtle.verify`. The hashing algorithm used for the authentication message
