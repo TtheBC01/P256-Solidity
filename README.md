@@ -92,6 +92,9 @@ After retrieving the result of `navigator.credential.get`, the contents of `clie
 {"type":"webauthn.create","challenge":"QXJiaXRyYXJ5IG1lc3NhZ2UgdGV4dCBnb2VzIGhlcmU=","origin":"https://toddchapman.io","crossOrigin":false,"other_keys_can_be_added_here":"do not compare clientDataJSON against a template. See https://goo.gl/yabPex"}
 ```
 
+> [!NOTE]
+> The keys included in `clientDataJSON` can change from one invocation to the next (as indicated in the above example), don't rely on a specific content layout.
+
 ## Parsing the Signature
 
 The signature is returned as part of the `navigator.credentials.get` payload:
