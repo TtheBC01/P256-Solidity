@@ -13,6 +13,10 @@ npx hardhat node
 npx hardhat ignition deploy ./ignition/modules/Lock.ts
 ```
 
+> [!NOTE]
+> The `P256.sol` library has not yet made it to the OpenZeppelin NPMJS package. The `/contracts` folder currently includes the requisite contracts
+> pulled from the OZ github master branch. 
+
 ## The WebAuthn API
 
 The Web Authentication API has been implemented by all major browsers and provides a seamless and secure authentication experience for end users based on public key cryptography. 
