@@ -13,15 +13,14 @@ npx hardhat node
 npx hardhat ignition deploy ./ignition/modules/Lock.ts
 ```
 
-## WebAuthn 
+## The WebAuthn API
 
+The Web Authentication API has been implemented by all major browsers and provides a seamless and secure authentication experience for end users based on public key cryptography. 
 Be sure to read the [W3C](https://www.w3.org/TR/webauthn-2/) specification for the WebAuthN API.
 
 Public keys and signature objects are returned in [DER](https://en.wikipedia.org/wiki/X.690#DER_encoding) [ASN.1](https://en.wikipedia.org/wiki/ASN.1) format 
-which is a self-describing data protocol used in many legacy crypto-systems. Using this serialization/deserialization protocol, the relavent components of 
+(Here's a good web-based [ASN.1](http://ldh.org/asn1.html) autodecoder) which is a self-describing data protocol used in many legacy crypto-systems. Using this serialization/deserialization protocol, the relavent components of 
 the public key (QX, QY) and [signature](https://bitcoin.stackexchange.com/questions/92680/what-are-the-der-signature-and-sec-format) (r, s) can be extracted and passed to an on-chain smart contract. 
-
-Here's a good web-based [ASN.1](http://ldh.org/asn1.html) autodecoder. 
 
 ### Constructing the Message Hash
 
@@ -144,7 +143,7 @@ const sValueUint8Array = formatInteger(signatureView.slice(startingByte, endingB
 const sString = sValueUint8Array.reduce((t, x) => t + x.toString(16).padStart(2, '0'), '');
 ```
 
-**IMPORTANT**
+> [!IMPORTANT]
 > The `P256.sol` implementation disallows signatures where the `s` value is above `N/2` to prevent malleability. To flip the `s` value, compute `s = N - s`.
 > For `secp256r1`, the value of `N` is `0xFFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551`.
 
@@ -196,6 +195,7 @@ const publicKeyUint8Array = pubKeyView.slice(startingByte, endingByte);
 const publicKeyString = publicKeyUint8Array.reduce((t, x) => t + x.toString(16).padStart(2, '0'), '');
 
 // finally, break the uncrompressed key into its x and y components which are 64 characters long
+// These two quantities can be used in Solidity (after prepending `0x` to the front of the string)
 qx = publicKeyString.slice(publicKeyString.length - 128, publicKeyString.length - 64);
-qy = publicKeyString.slice(-64)
+qy = publicKeyString.slice(-64);
 ```
