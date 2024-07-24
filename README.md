@@ -144,6 +144,10 @@ const sValueUint8Array = formatInteger(signatureView.slice(startingByte, endingB
 const sString = sValueUint8Array.reduce((t, x) => t + x.toString(16).padStart(2, '0'), '');
 ```
 
+**IMPORTANT**
+> The `P256.sol` implementation disallows signatures where the `s` value is above `N/2` to prevent malleability. To flip the `s` value, compute `s = N - s`.
+> For `secp256r1`, the value of `N` is `0xFFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551`.
+
 ## Parsing the Public Key
 
 The public key is returned as the output of the call to `navigator.credentials.create`:
