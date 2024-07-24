@@ -54,7 +54,7 @@ const cDataHashView = new Uint8Array(clientDataHash);
 combinedView.set(authDataView, 0);
 combinedView.set(cDataHashView, authenticatorData.byteLength);
 
-// Finally, you can user crypto.subtle.verify to hash authMessageBuffer and send the result to Solidity
+// Finally, you can user crypto.subtle.digest to hash authMessageBuffer and send the result to Solidity
 const authMessageHash = await crypto.subtle.digest("SHA-256", new Uint8Array(authMessageBuffer));
 const authMessageHashString = authMessageHash.reduce((t, x) => t + x.toString(16).padStart(2, '0'), ''); // prepend w/ `0x` and send to Solidity
 ```
