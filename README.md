@@ -50,7 +50,34 @@ combinedView.set(authDataView, 0);
 combinedView.set(cDataHashView, authenticatorData.byteLength);
 ```
 
-Now `authMessageBuffer` contains a byte payload than can be used by `crypto.subtle.verify`. 
+Now `authMessageBuffer` contains a byte payload than can be used by `crypto.subtle.verify`. The hashing algorithm used for the authentication message
+in the WebAuthn spec is `sha256` (not `keccak256`), so you must compute the `sha256` hash of `authMessageBuffer` in order to use the `verify` method
+provided by `P256.sol`. 
+
+### Challenge String
+
+When requesting a signature from a user via the WebAuthn api, the client application must pass along *challenge* string as part of the message payload:
+
+```javascript
+const publicKey = {
+    challenge: new TextEncoder().encode("Arbitrary message text goes here"), // this is your challenge string
+    rpId: window.location.host,
+    timeout: 60_000,
+};
+navigator.credentials.get({
+    publicKey,
+    mediation: 'optional',
+})
+```
+
+According to the [W3C spec section 7.2](https://www.w3.org/TR/webauthn-2/#sctn-verifying-assertion) step 12, internally the challenge string is *base64url* 
+encoded before signing. 
+
+After retrieving the result of `navigator.credential.get`, the contents of `clientDataJSON` will look something like this:
+
+```javascript
+{"type":"webauthn.create","challenge":"QXJiaXRyYXJ5IG1lc3NhZ2UgdGV4dCBnb2VzIGhlcmU=","origin":"https://toddchapman.io","crossOrigin":false,"other_keys_can_be_added_here":"do not compare clientDataJSON against a template. See https://goo.gl/yabPex"}
+```
 
 ## Parsing the Signature
 
@@ -66,13 +93,14 @@ It is DER ASN.1 encoded and must be parsed to extract its components (Qx and Qy)
 
 // curve elements MUST be 32 bytes for use in secp256r1 implementations
 // this function converts variable length ArrayBuffers to 32 byte ArrayBuffers 
-// representing integer field elements
+// representing integer field elements since P256 signatures are variable length
+// https://transactionfee.info/charts/bitcoin-script-ecdsa-length/
 function formatInteger(integerBytes) {
   if (integerBytes.byteLength === 32) return integerBytes;
   if (integerBytes.byteLength < 32) {
     return concatenateUint8Array(
         // pad the most significant digits with 0's if too short
-        new Uint8Array(expectedLength - integerBytes.byteLength).fill(0),
+        new Uint8Array(32 - integerBytes.byteLength).fill(0),
         integerBytes
     );
   }
@@ -150,7 +178,7 @@ console.assert(metadataString === '06072a8648ce3d020106082a8648ce3d030107', "Thi
 
 // The public key indicator byte must be a bit string (0x03)
 const publicKeyIndicatorByte = pubKeyView[4 + metadataLength];
-console.assert(publicKeyIndicatorByte === 3, "This is not a public key byte array");
+console.assert(publicKeyIndicatorByte === 3, "This is not a bit string object");
 
 // Get the length of the public key bit string
 const pubKeyLength = pubKeyView[4 + metadataLength + 1];
@@ -160,4 +188,8 @@ const startingByte = 4 + metadataLength + 2;
 const endingByte = startingByte + pubKeyLength;
 const publicKeyUint8Array = pubKeyView.slice(startingByte, endingByte);
 const publicKeyString = publicKeyUint8Array.reduce((t, x) => t + x.toString(16).padStart(2, '0'), '');
+
+// finally, break the uncrompressed key into its x and y components which are 64 characters long
+qx = publicKeyString.slice(publicKeyString.length - 128, publicKeyString.length - 64);
+qy = publicKeyString.slice(-64)
 ```
