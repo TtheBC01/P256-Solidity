@@ -148,6 +148,7 @@ console.assert(sTypeIndicatorByte === 2, "This is not a signature byte array");
 const sLength = signatureView[4 + rLength + 1];
 
 // Slice out the s value 
+const startingByte = 4 + metadataLength + 2;
 const endingByte = startingByte + sLength;
 const sValueUint8Array = formatInteger(signatureView.slice(startingByte, endingByte));
 const sString = sValueUint8Array.reduce((t, x) => t + x.toString(16).padStart(2, '0'), '');
