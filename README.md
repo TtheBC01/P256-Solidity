@@ -25,4 +25,139 @@ Here's a good web-based [ASN.1](http://ldh.org/asn1.html) autodecoder.
 
 ### Constructing the Message Hash
 
-The construction of the message hashed signed by the user's passkey is described in steps 19 and 20 of the [W3C spec section 7.2](https://www.w3.org/TR/webauthn-2/#sctn-verifying-assertion). 
+The construction of the message hashed signed by the user's passkey is described in steps 19 and 20 of the [W3C spec section 7.2](https://www.w3.org/TR/webauthn-2/#sctn-verifying-assertion).
+
+When a user signature is prompted via `navigator.credentials.get`, the response has four components:
+
+```javascript
+const { authenticatorData, clientDataJSON, signature, userHandle } = pubKeyCredential.response;
+```
+
+The message hash is the binary concatenation of `authenticatorData` (which is a `BufferArray`) and the `sha256` hash of `clientDataJSON` (which is a simple JSON object). 
+
+```javascript
+// hash clientDataJSON
+const clientDataUint8Array = new Uint8Array(clientDataJSON);
+const clientDataHash = await crypto.subtle.digest("SHA-256", clientDataUint8Array);
+
+// concatenate authenticatorData and clientDataHash
+const combinedLength = authenticatorData.byteLength + clientDataHash.byteLength;
+const authMessageBuffer = new ArrayBuffer(combinedLength);
+const combinedView = new Uint8Array(authMessageBuffer);
+const authDataView = new Uint8Array(authenticatorData);
+const cDataHashView = new Uint8Array(clientDataHash);
+combinedView.set(authDataView, 0);
+combinedView.set(cDataHashView, authenticatorData.byteLength);
+```
+
+Now `authMessageBuffer` contains a byte payload than can be used by `crypto.subtle.verify`. 
+
+## Parsing the Signature
+
+The signature is returned as part of the `navigator.credentials.get` payload:
+
+```javascript
+const { authenticatorData, clientDataJSON, signature, userHandle } = pubKeyCredential.response;
+```
+
+It is DER ASN.1 encoded and must be parsed to extract its components (Qx and Qy):
+
+```javascript
+
+// curve elements MUST be 32 bytes for use in secp256r1 implementations
+// this function converts variable length ArrayBuffers to 32 byte ArrayBuffers 
+// representing integer field elements
+function formatInteger(integerBytes) {
+  if (integerBytes.byteLength === 32) return integerBytes;
+  if (integerBytes.byteLength < 32) {
+    return concatenateUint8Array(
+        // pad the most significant digits with 0's if too short
+        new Uint8Array(expectedLength - integerBytes.byteLength).fill(0),
+        integerBytes
+    );
+  }
+
+  // remove superfluous 0's if too long
+  return integerBytes.slice(-32);
+}
+
+signatureView = new Uint8Array(signature);
+
+// First value is the header and should be 0x30
+const headerByte = signatureView[0];
+
+// Second value tells you the length of the rest of the data array
+const signatureLength = signatureView[1];
+
+// Third value tells you the type of the next value which MUST be an integer (0x02) if this is a signature array
+// https://en.wikipedia.org/wiki/X.690#identifier_octets
+const rTypeIndicatorByte = signatureView[2];
+console.assert(rTypeIndicatorByte === 2, "This is not a signature byte array");
+
+// Forth Value is the length of the first coordinate (r) of the signature (r,s)
+const rLength = signatureView[3];
+
+// Slice out the r value and pad it it is less than 32 bytes
+const rValueUint8Array = formatInteger(signatureView.slice(4, 4 + rLength));
+const rString = rValueUint8Array.reduce((t, x) => t + x.toString(16).padStart(2, '0'), '');
+
+// Now you will read the s value, you should check that its type is an integer for safety (0x02)
+const sTypeIndicatorByte = signatureView[4 + rLength];
+console.assert(sTypeIndicatorByte === 2, "This is not a signature byte array");
+
+// Now get the length of the s value of the signature (r,s)
+const sLength = signatureView[4 + rLength + 1];
+
+// Slice out the s value 
+const endingByte = startingByte + sLength;
+const sValueUint8Array = formatInteger(signatureView.slice(startingByte, endingByte));
+const sString = sValueUint8Array.reduce((t, x) => t + x.toString(16).padStart(2, '0'), '');
+```
+
+## Parsing the Public Key
+
+The public key is returned as the output of the call to `navigator.credentials.create`:
+
+```javascript
+const publicKey = pubKeyCredential.response.getPublicKey();
+```
+
+Like the signature, the public key is also encoded in DER ASN.1 format. You can extract the Qx and Qy components like this:
+
+```javascript
+pubKeyView = new Uint8Array(publicKey);
+
+// describes the DER type to follow
+const headerByte = pubKeyView[0];
+
+// Second value tells you the length of the rest of the data array
+const keyLength = pubKeyView[1];
+
+// Third byte MUST be equal to 48 if this is a legitimate public key array
+const metadataIndicatorByte = pubKeyView[2];
+console.assert(metadataIndicatorByte === 48, "This is not a public key byte array");
+
+// Forth Value is the length of the public key metadata
+const metadataLength = pubKeyView[3];
+
+// this metadata is a SEQUENCE OF containing the description of the key type (i.e. it should describe a ecPublickey for P-256)
+// How to encode OID Object Identifiers: https://learn.microsoft.com/en-us/windows/win32/seccertenroll/about-object-identifier?redirectedfrom=MSDN
+// ecPublicKey OID: 06072a8648ce3d0201 -> 1.2.840.10045.2.1 https://www.oid-info.com/get/1.2.840.10045.2.1
+// P256 OID: 6082a8648ce3d030107 -> 1.2.840.10045.3.1.7 https://oid-rep.orange-labs.fr/get/1.2.840.10045.3.1.7)
+const metadataUint8Array = pubKeyView.slice(4, 4 + metadataLength);
+const metadataString = metadataUint8Array.reduce((t, x) => t + x.toString(16).padStart(2, '0'), '');
+console.assert(metadataString === '06072a8648ce3d020106082a8648ce3d030107', "This is not an ecPublicKey P256 object");
+
+// The public key indicator byte must be a bit string (0x03)
+const publicKeyIndicatorByte = pubKeyView[4 + metadataLength];
+console.assert(publicKeyIndicatorByte === 3, "This is not a public key byte array");
+
+// Get the length of the public key bit string
+const pubKeyLength = pubKeyView[4 + metadataLength + 1];
+
+// Slice out the bit string representing the public key and convert it to a hex string
+const startingByte = 4 + metadataLength + 2;
+const endingByte = startingByte + pubKeyLength;
+const publicKeyUint8Array = pubKeyView.slice(startingByte, endingByte);
+const publicKeyString = publicKeyUint8Array.reduce((t, x) => t + x.toString(16).padStart(2, '0'), '');
+```
