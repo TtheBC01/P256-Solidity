@@ -123,6 +123,7 @@ const rTypeIndicatorByte = signatureView[2];
 console.assert(rTypeIndicatorByte === 2, "This is not a signature byte array");
 
 // Forth Value is the length of the first coordinate (r) of the signature (r,s)
+// r could be less than 32 bytes
 const rLength = signatureView[3];
 
 // Slice out the r value and pad it it is less than 32 bytes
@@ -134,6 +135,7 @@ const sTypeIndicatorByte = signatureView[4 + rLength];
 console.assert(sTypeIndicatorByte === 2, "This is not a signature byte array");
 
 // Now get the length of the s value of the signature (r,s)
+// s could be less than 32 bytes
 const sLength = signatureView[4 + rLength + 1];
 
 // Slice out the s value 
