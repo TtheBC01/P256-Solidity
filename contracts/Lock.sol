@@ -46,4 +46,36 @@ contract Lock {
 
         owner.transfer(address(this).balance);
     }
+
+    function withdrawWithClientDataJSON(
+        bytes memory authenticatorData, 
+        string memory clientDataJSONLeft, 
+        string memory challenge, 
+        string memory clientDataJSONRight, 
+        bytes32 r, 
+        bytes32 s
+        ) public {
+        // Uncomment this line, and the import of "hardhat/console.sol", to print a log in your terminal
+        // console.log("Unlock time is %o and block timestamp is %o", unlockTime, block.timestamp);
+
+        // this should be done client-side to save gas, but is shown here in this example to
+        // explicity demonstrate this requirement of the P256 library
+        if(uint256(s) > N/2) {
+            uint256 us = N - uint256(s);
+            s = bytes32(us);
+        }
+        
+        // NOTE: Do something with challenge string, like verify that it encodes something, before sig verification
+        string memory clientDataJSON = string.concat(clientDataJSONLeft, challenge, clientDataJSONRight);
+        bytes32 cDataHash = keccak256(bytes(clientDataJSON));
+        bytes32 h = keccak256(bytes.concat(authenticatorData,cDataHash));
+
+        require(block.timestamp >= unlockTime, "You can't withdraw yet");
+        require(msg.sender == owner, "You aren't the owner");
+        require(P256.verify(h, r, s, qx, qy), "Invalid P256 Signature");
+
+        emit Withdrawal(address(this).balance, block.timestamp);
+
+        owner.transfer(address(this).balance);
+    }
 }

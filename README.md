@@ -69,7 +69,7 @@ provided by `P256.sol`.
 
 ### Challenge String
 
-When requesting a signature from a user via the WebAuthn api, the client application must pass along *challenge* string as part of the message payload:
+When requesting a signature from a user via the WebAuthn api, the client application must pass along a *challenge* string as part of the message payload:
 
 ```javascript
 const publicKey = {
@@ -81,6 +81,8 @@ navigator.credentials.get({
     publicKey,
     mediation: 'optional',
 })
+
+challenge = 'withdraw[blahblah]'
 ```
 
 According to the [W3C spec section 7.2](https://www.w3.org/TR/webauthn-2/#sctn-verifying-assertion) step 12, internally the challenge string is *base64url* 
@@ -93,7 +95,7 @@ After retrieving the result of `navigator.credential.get`, the contents of `clie
 ```
 
 > [!NOTE]
-> The keys included in `clientDataJSON` can change from one invocation to the next (as indicated in the above example), don't rely on a specific content layout.
+> The key-value pairs included in `clientDataJSON` can change from one invocation to the next (as indicated in the above example), don't rely on a specific content layout.
 
 ## Parsing the Signature
 
