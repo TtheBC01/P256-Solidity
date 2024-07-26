@@ -8,13 +8,19 @@ import { getAddress, parseGwei } from "viem";
 
 // You can generate new valid P256 parameters at https://toddchapman.io/passkey-demo
 // The values are avaible in the console
-const QX = '0xe5cb61eef9d33263374e67681b575fd29c726f4ab58ae91fd82b6a30e0bb8db1';
-const QY = '0x3523d67086dd12a11da06fe596d361401f0083742de6b84e6044a480280e9e82';
+const QX = '0x46b816eb4bafcdd992c8f367f14c49324a900322de56917ab269cc41a12adfc3';
+const QY = '0x5c38792a526eb57d2795c2a029708394bd61273c785c9a6a35fb93b54f07be5c';
 
-const R_VALUE = '0x8c9b6c5d0835936b88a7731ac35f092ef3df3bb21e7ea3fa7a1905b5f6d4a79f';
-const S_VALUE = '0xeafeb326af1f5baf92642ebcbc236dad0510507db9e827e0e1f4500b6f2db164';
+const R_VALUE = '0x678dc2d69bad88a5cc50c3269bce4aba402161274f7daa0595190eb4adddb1f4';
+const S_VALUE = '0xb67e2b7d08ddd672b3c899d1b26328d74c776a261f33bc2328c414ee50c08ae6';
 
 const HASH = '0x9fb01c132978415b8294215f17ce29e6297b28efd19209ebbdb50bccc6cb888b';
+
+const AUTH_DATA_BYTES = `0x${'d8a0bf4f8294146ab009857f0c54e7b47dd13980a9ce558becd61dbced0bd8411900000000'}`;
+const CLIENT_DATA_JSON_LEFT = '{"type":"webauthn.get","challenge":"';
+const CHALLENGE = 'Login to Passkey Demo'; // be careful not to use reserved characters in your challenge string
+const CHALLENGE_BASE64 = 'TG9naW4gdG8gUGFzc2tleSBEZW1v';
+const CLIENT_DATA_JSON_RIGHT = '","origin":"https://toddchapman.io","crossOrigin":false}';
 
 describe("Lock", function () {
   // We define a fixture to reuse the same setup in every test.
@@ -112,7 +118,7 @@ describe("Lock", function () {
         );
       });
 
-      it("Shouldn't fail if the unlockTime has arrived and the owner calls it", async function () {
+      it("Shouldn't fail if the unlockTime has arrived and the owner calls it with hash", async function () {
         const { lock, unlockTime } = await loadFixture(
           deployOneYearLockFixture
         );
@@ -121,6 +127,28 @@ describe("Lock", function () {
         await time.increaseTo(unlockTime);
 
         await expect(lock.write.withdraw([HASH, R_VALUE, S_VALUE])).to.be.fulfilled;
+      });
+
+      it("Shouldn't fail if the unlockTime has arrived and the owner calls it with auth and client data", async function () {
+        const { lock, unlockTime } = await loadFixture(
+          deployOneYearLockFixture
+        );
+
+        // Transactions are sent using the first signer by default
+        await time.increaseTo(unlockTime);
+
+        await expect(lock.write.withdrawWithClientDataJSON([AUTH_DATA_BYTES, CLIENT_DATA_JSON_LEFT, CHALLENGE_BASE64, CLIENT_DATA_JSON_RIGHT, R_VALUE, S_VALUE])).to.be.fulfilled;
+      });
+
+      it("Shouldn't fail if the unlockTime has arrived and the owner calls it with auth and client data and unencoded challenge string", async function () {
+        const { lock, unlockTime } = await loadFixture(
+          deployOneYearLockFixture
+        );
+
+        // Transactions are sent using the first signer by default
+        await time.increaseTo(unlockTime);
+
+        await expect(lock.write.withdrawWithClientDataJSONComputeBase64([AUTH_DATA_BYTES, CLIENT_DATA_JSON_LEFT, CHALLENGE, CLIENT_DATA_JSON_RIGHT, R_VALUE, S_VALUE])).to.be.fulfilled;
       });
     });
 
