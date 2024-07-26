@@ -64,7 +64,7 @@ const authMessageHash = await crypto.subtle.digest("SHA-256", new Uint8Array(aut
 const authMessageHashString = authMessageHash.reduce((t, x) => t + x.toString(16).padStart(2, '0'), ''); // prepend w/ `0x` and send to Solidity
 ```
 
-Now `authMessageBuffer` contains a byte payload than can be used by `crypto.subtle.verify`. The hashing algorithm used for the authentication message
+Now `authMessageBuffer` contains a byte payload than could be used by `crypto.subtle.verify`. The hashing algorithm used for the authentication message
 in the WebAuthn spec is `sha256` (not `keccak256`), so you must compute the `sha256` hash of `authMessageBuffer` in order to use the `verify` method
 provided by `P256.sol`. 
 
@@ -82,8 +82,6 @@ navigator.credentials.get({
     publicKey,
     mediation: 'optional',
 })
-
-challenge = 'withdraw[blahblah]'
 ```
 
 According to the [W3C spec section 7.2](https://www.w3.org/TR/webauthn-2/#sctn-verifying-assertion) step 12, internally the challenge string is *base64url* 
