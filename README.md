@@ -15,7 +15,8 @@ npx hardhat ignition deploy ./ignition/modules/Lock.ts
 
 > [!NOTE]
 > The `P256.sol` library has not yet made it to the OpenZeppelin NPMJS package. The `/contracts` folder currently includes the requisite contracts
-> pulled from the OZ github master branch. 
+> pulled from the OZ github master branch. You can enable `secp256r1` [precompile](https://hardhat.org/hardhat-network/docs/reference#enablerip7212) 
+> in hardhat.
 
 ## The WebAuthn API
 

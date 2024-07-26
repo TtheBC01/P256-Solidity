@@ -48,6 +48,7 @@ describe("Lock", function () {
       owner,
       otherAccount,
       publicClient,
+      S_VALUE
     };
   }
 

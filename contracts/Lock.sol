@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/utils/Base64.sol";
 import "./P256.sol";
 
 // Uncomment this line to use console.log
-// import "hardhat/console.sol";
+import "hardhat/console.sol";
 
 contract Lock {
     uint public unlockTime;
@@ -29,22 +29,34 @@ contract Lock {
         qy = _qy;
     }
 
-    function withdraw(bytes32 h, bytes32 r, bytes32 s) public {
+    // @notice Verifies a P256 signature against a supplied message hash
+    // @param h pre-computed sha256 hash of the conncatenation of authenticatorData and sha256(clienDataJSON)
+    // @param r The r component of the P256 signature
+    // @param s The s component of the P256 signature (must be < N/2)
+    function withdraw(bytes32 h, bytes32 r, bytes32 s) external {
         // this should be done client-side to save gas, but is shown here in this example to
         // explicity demonstrate this requirement of the P256 library
         if(uint256(s) > N/2) {
             uint256 us = N - uint256(s);
             s = bytes32(us);
         }
+
         require(block.timestamp >= unlockTime, "You can't withdraw yet");
         require(msg.sender == owner, "You aren't the owner");
-        require(P256.verify(h, r, s, qx, qy), "Invalid P256 Signature");
+        require(P256.verify(h, r, s, qx, qy), "Invalid P256 Signature"); // this costs about 235,000 gas units
 
         emit Withdrawal(address(this).balance, block.timestamp);
 
         owner.transfer(address(this).balance);
     }
 
+    // @notice Verifies a P256 signature against supplied authenticatorData bytes and clientDataJSON strings
+    // @param authenticatorData bytes returned by navigator.credentials.get response
+    // @param clientDataJSONLeft JSON string of all keys/values to the left of the challenge string (inluding opening ")
+    // @param challengeBase64 the base64url encoded challenge string
+    // @param clientDataJSONRight JSON string of all keys/vaules to the right of the challenge string (including closing ")
+    // @param r The r component of the P256 signature
+    // @param s The s component of the P256 signature (must be < N/2)
     function withdrawWithClientDataJSON(
         bytes memory authenticatorData, 
         string memory clientDataJSONLeft, 
@@ -52,7 +64,7 @@ contract Lock {
         string memory clientDataJSONRight, 
         bytes32 r, 
         bytes32 s
-        ) public {
+        ) external {
         // this should be done client-side to save gas, but is shown here in this example to
         // explicity demonstrate this requirement of the P256 library
         if(uint256(s) > N/2) {
@@ -74,6 +86,13 @@ contract Lock {
         owner.transfer(address(this).balance);
     }
 
+    // @notice Verifies a P256 signature against supplied authenticatorData bytes and clientDataJSON strings
+    // @param authenticatorData bytes returned by navigator.credentials.get response
+    // @param clientDataJSONLeft JSON string of all keys/values to the left of the challenge string (inluding opening ")
+    // @param challenge the unencoded challenge string
+    // @param clientDataJSONRight JSON string of all keys/vaules to the right of the challenge string (including closing ")
+    // @param r The r component of the P256 signature
+    // @param s The s component of the P256 signature (must be < N/2)
     function withdrawWithClientDataJSONComputeBase64(
         bytes memory authenticatorData, 
         string memory clientDataJSONLeft, 
@@ -81,7 +100,7 @@ contract Lock {
         string memory clientDataJSONRight, 
         bytes32 r, 
         bytes32 s
-        ) public {
+        ) external {
         // this should be done client-side to save gas, but is shown here in this example to
         // explicity demonstrate this requirement of the P256 library
         if(uint256(s) > N/2) {
