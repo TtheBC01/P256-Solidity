@@ -292,17 +292,14 @@
                 const signCountBytes = authenticatorData.slice(33, 37); // sign count lives in the 4 bytes starting at byte 34 as per W3C 
                 const dataView = new DataView(signCountBytes);
                 const signCount = dataView.getInt32(0, false);
-                console.log("Sign Count: ", signCount);
 
                 console.log("Key ID: ", id);
-
                 console.log("Type: ", type);
-
                 console.log("Challenge: ", challenge);
-
                 console.log("Origin: ", origin);
 
-                const parsedSignatureBuffer = parseRawSignature(signature);
+                const msgPayload = `authenticatorData: 0x${(new Uint8Array(authenticatorData)).reduce((t, x) => t + x.toString(16).padStart(2, '0'), '')}, clientJSONData: ${clientDataJSON}, `
+                const parsedSignatureBuffer = parseRawSignature(signature, msgPayload);
                 console.log("Raw Signature:", signature);
                 verifySignature(id, authenticatorData, clientDataJSON, parsedSignatureBuffer);
             })
@@ -465,8 +462,8 @@
             const qx = publicKeyString.slice(publicKeyString.length - 128, publicKeyString.length - 64);
             const qy = publicKeyString.slice(-64);
             console.log("Public Key: ", publicKeyString);
-            console.log("QX: ", qx);
-            console.log("QY: ", qy);
+            console.log("QX: ", `0x${qx}`);
+            console.log("QY: ", `0x${qy}`);
 
             const parsedPublicKey = "Qx: " + qx + " Qy: " + qy;
 
@@ -474,7 +471,7 @@
         }
 
         // returns a 64-byte ArrayBuffer containing r and s concatenated together
-        function parseRawSignature(signatureArray) {
+        function parseRawSignature(signatureArray, msgPayload) {
             signatureView = new Uint8Array(signatureArray);
 
             // First value is the header and should be 0x30
@@ -517,7 +514,9 @@
             const sString = sValueUint8Array.reduce((t, x) => t + x.toString(16).padStart(2, '0'), '');
             console.log("S Value: ", sString);
 
-            clipboardHolder = rString + "," + sString;
+            const sigAndMsgPayload = msgPayload + `, r: 0x${rString}, s: 0x${sString}`
+
+            showCopyToClipboardButton(sigAndMsgPayload, "Signature and Message Data Copied: ");
 
             // return the signature formatted for use in crypto.subtle.verify
             return new Uint8Array([...rValueUint8Array, ...sValueUint8Array]).buffer;
@@ -557,22 +556,6 @@
             const truncatedString = firstPart + middlePart + lastPart;
 
             return truncatedString;
-        }
-
-        function copyToClipboard() {
-            // Create a temporary textarea element
-            var tempTextArea = document.createElement("textarea");
-            tempTextArea.value = clipboardHolder;
-
-            // Append the textarea to the document
-            document.body.appendChild(tempTextArea);
-
-            // Select the text in the textarea
-            tempTextArea.select();
-            document.execCommand("copy");
-
-            // Remove the temporary textarea
-            document.body.removeChild(tempTextArea);
         }
     </script>
 </body>
