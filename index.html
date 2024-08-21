@@ -87,27 +87,26 @@
             background-color: #0056b3;
         }
 
-        .table-container {
+        .copy-to-clipboard {
             display: none;
+            margin-top: 20px;
             width: 100%;
             max-width: 800px;
-            margin-top: 20px;
+            text-align: center;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        .copy-to-clipboard button {
+            font-size: 18px;
+            padding: 12px 24px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
         }
 
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #f2f2f2;
+        .copy-to-clipboard button:hover {
+            background-color: #0056b3;
         }
 
         .footer {
@@ -168,53 +167,12 @@
         </div>
     </div>
 
-    <div id="table-container" class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>Column 1</th>
-                    <th>Column 2</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Row 1, Cell 1</td>
-                    <td>Row 1, Cell 2</td>
-                </tr>
-                <tr>
-                    <td>Row 2, Cell 1</td>
-                    <td>Row 2, Cell 2</td>
-                </tr>
-                <tr>
-                    <td>Row 3, Cell 1</td>
-                    <td>Row 3, Cell 2</td>
-                </tr>
-                <tr>
-                    <td>Row 4, Cell 1</td>
-                    <td>Row 4, Cell 2</td>
-                </tr>
-                <tr>
-                    <td>Row 5, Cell 1</td>
-                    <td>Row 5, Cell 2</td>
-                </tr>
-                <tr>
-                    <td>Row 6, Cell 1</td>
-                    <td>Row 6, Cell 2</td>
-                </tr>
-                <tr>
-                    <td>Row 7, Cell 1</td>
-                    <td>Row 7, Cell 2</td>
-                </tr>
-                <tr>
-                    <td>Row 8, Cell 1</td>
-                    <td>Row 8, Cell 2</td>
-                </tr>
-            </tbody>
-        </table>
+    <div id="copy-to-clipboard" class="copy-to-clipboard">
+        <button id="copy-btn">Copy to Clipboard</button>
     </div>
 
     <footer class="footer">
-        <a href="https://github.com" target="_blank" class="github-icon">
+        <a href="https://github.com/TtheBC01/P256-Solidity" target="_blank" class="github-icon">
             <i class="fab fa-github"></i>
         </a>
     </footer>
@@ -226,18 +184,12 @@
         const usernameForm = document.getElementById('username-form');
         const usernameInput = document.getElementById('username-input');
         const buttonContainer = document.getElementById('button-container');
-        const tableContainer = document.getElementById('table-container');
+        const copyToClipboardContainer = document.getElementById('copy-to-clipboard');
+        const copyBtn = document.getElementById('copy-btn');
 
-        let username; 
+        let username;
 
         // To get the value when the form is submitted
-        usernameForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-            username = usernameInput.value;
-            console.log('Username submitted:', username);
-            // You can use the username value here
-        });
-
         createPasskeyBtn.addEventListener('click', () => {
             modal.style.display = 'block';
             usernameInput.focus();
@@ -253,18 +205,21 @@
             event.preventDefault();
             const username = usernameInput.value;
             createPasskey();
-            showTable();
         });
 
         getSignatureBtn.addEventListener('click', () => {
-            showTable();
+            showCopyToClipboardButton('blah');
         });
 
-        function showTable() {
+        function showCopyToClipboardButton(value) {
             modal.style.display = 'none';
             buttonContainer.style.display = 'none';
-            tableContainer.style.display = 'block';
-            usernameInput.value = '';
+            copyToClipboardContainer.style.display = 'block';
+
+            copyBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(value);
+                alert('Copied to clipboard: ' + value);
+            });
         }
 
         function createPasskey() {
@@ -518,13 +473,15 @@
             const endingByte = startingByte + pubKeyLength;
             const publicKeyUint8Array = pubKeyView.slice(startingByte, endingByte);
             const publicKeyString = publicKeyUint8Array.reduce((t, x) => t + x.toString(16).padStart(2, '0'), '');
+            const qx = publicKeyString.slice(publicKeyString.length - 128, publicKeyString.length - 64);
+            const qy = publicKeyString.slice(-64);
             console.log("Public Key: ", publicKeyString);
-            console.log("QX: ", publicKeyString.slice(publicKeyString.length - 128, publicKeyString.length - 64));
-            console.log("QY: ", publicKeyString.slice(-64));
+            console.log("QX: ", qx);
+            console.log("QY: ", qy);
 
-            clipboardHolder = publicKeyString;
-            document.getElementById("signaturefield").innerHTML = "Public Key: " + truncateString(publicKeyString);
-            document.getElementById('clipboard-button').style.display = 'block';
+            const parsedPublicKey = "Qx: " + qx + " Qy: " + qy;
+
+            showCopyToClipboardButton(username);
         }
 
         // returns a 64-byte ArrayBuffer containing r and s concatenated together
