@@ -155,7 +155,7 @@
 
     <div id="button-container" class="buttons">
         <button id="create-passkey-btn">Create Passkey</button>
-        <button id="get-signature-btn">Get Signature</button>
+        <button id="get-signature-btn" onclick="getPasskey()">Get Signature</button>
     </div>
 
     <div id="username-modal" class="modal">
@@ -351,15 +351,12 @@
                 console.log("Sign Count: ", signCount);
 
                 console.log("Key ID: ", id);
-                document.getElementById("keyid").innerHTML = "Key ID: " + id;
 
                 console.log("Type: ", type);
 
                 console.log("Challenge: ", challenge);
-                document.getElementById("keychallenge").innerHTML = "Challenge: " + challenge;
 
                 console.log("Origin: ", origin);
-                document.getElementById("keyorigin").innerHTML = "Origin: " + origin + "   " + "Sign Count: " + signCount;
 
                 const parsedSignatureBuffer = parseRawSignature(signature);
                 console.log("Raw Signature:", signature);
@@ -416,11 +413,6 @@
                 )
             }).then((signatureVerified) => {
                 console.log("Signature Verified: ", signatureVerified);
-                if (signatureVerified === true) {
-                    document.getElementById("signaturefield").innerHTML += '✅';
-                } else {
-                    document.getElementById("signaturefield").innerHTML += "❌💀❌";
-                }
             }).then(() => {
                 return computeSHA256(authMessageBuffer);
             }).then((authMessageHash) => {
@@ -579,8 +571,6 @@
             const sString = sValueUint8Array.reduce((t, x) => t + x.toString(16).padStart(2, '0'), '');
             console.log("S Value: ", sString);
 
-            document.getElementById("signaturefield").innerHTML = "Signature Data - R Length: " + rLength + ", R: " + rString.slice(0, 10) + "..." + ", S Length: " + sLength + ", S: " + sString.slice(0, 10) + "...";
-            document.getElementById('clipboard-button').style.display = 'block';
             clipboardHolder = rString + "," + sString;
 
             // return the signature formatted for use in crypto.subtle.verify
@@ -637,10 +627,6 @@
 
             // Remove the temporary textarea
             document.body.removeChild(tempTextArea);
-        }
-
-        function getUsername() {
-            document.getElementById("inputContainer").style.display = "block";
         }
     </script>
 </body>
