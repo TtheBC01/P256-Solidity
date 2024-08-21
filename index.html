@@ -228,6 +228,16 @@
         const buttonContainer = document.getElementById('button-container');
         const tableContainer = document.getElementById('table-container');
 
+        let username; 
+
+        // To get the value when the form is submitted
+        usernameForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            username = usernameInput.value;
+            console.log('Username submitted:', username);
+            // You can use the username value here
+        });
+
         createPasskeyBtn.addEventListener('click', () => {
             modal.style.display = 'block';
             usernameInput.focus();
@@ -259,8 +269,7 @@
 
         function createPasskey() {
 
-            document.getElementById("inputContainer").style.display = "none";
-            console.log("Username: ", document.getElementById("textInput").value)
+            console.log("Username: ", username)
 
             const publicKey = {
                 challenge: new TextEncoder().encode(crypto.randomUUID()),
@@ -271,8 +280,8 @@
                 timeout: 60_000,
                 user: {
                     id: new TextEncoder().encode(crypto.randomUUID()),
-                    name: document.getElementById("textInput").value,
-                    displayName: document.getElementById("textInput").value
+                    name: username,
+                    displayName: username
                 },
                 pubKeyCredParams: [{ type: "public-key", alg: -7 }] // -7 denotes ECDSA
             }
