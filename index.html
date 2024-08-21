@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Passkey and Signature</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      position: relative;
+      padding-bottom: 60px; /* Height of the footer */
+      box-sizing: border-box;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .buttons button {
+      flex: 1 1 200px;
+      font-size: 18px;
+      padding: 12px 24px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .buttons button:hover {
+      background-color: #0056b3;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 300px;
+      border-radius: 5px;
+    }
+
+    .modal-content input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      box-sizing: border-box;
+    }
+
+    .modal-content button {
+      width: 100%;
+      padding: 10px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .modal-content button:hover {
+      background-color: #0056b3;
+    }
+
+    .table-container {
+      display: none;
+      width: 100%;
+      max-width: 800px;
+      margin-top: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    .footer {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 100%;
+      height: 60px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding-right: 20px;
+      box-sizing: border-box;
+    }
+
+    .github-icon {
+      font-size: 24px;
+      color: #333;
+      text-decoration: none;
+    }
+
+    .github-icon:hover {
+      color: #007bff;
+    }
+
+    @media (max-width: 600px) {
+      .buttons button {
+        flex-basis: 100%;
+      }
+
+      table {
+        font-size: 14px;
+      }
+
+      th, td {
+        padding: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Passkey and Signature</h1>
+
+  <div id="button-container" class="buttons">
+    <button id="create-passkey-btn">Create Passkey</button>
+    <button id="get-signature-btn">Get Signature</button>
+  </div>
+
+  <div id="username-modal" class="modal">
+    <div class="modal-content">
+      <form id="username-form">
+        <label for="username-input">Username:</label>
+        <input type="text" id="username-input" name="username-input" required>
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="table-container" class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Column 1</th>
+          <th>Column 2</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Row 1, Cell 1</td><td>Row 1, Cell 2</td></tr>
+        <tr><td>Row 2, Cell 1</td><td>Row 2, Cell 2</td></tr>
+        <tr><td>Row 3, Cell 1</td><td>Row 3, Cell 2</td></tr>
+        <tr><td>Row 4, Cell 1</td><td>Row 4, Cell 2</td></tr>
+        <tr><td>Row 5, Cell 1</td><td>Row 5, Cell 2</td></tr>
+        <tr><td>Row 6, Cell 1</td><td>Row 6, Cell 2</td></tr>
+        <tr><td>Row 7, Cell 1</td><td>Row 7, Cell 2</td></tr>
+        <tr><td>Row 8, Cell 1</td><td>Row 8, Cell 2</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer class="footer">
+    <a href="https://github.com" target="_blank" class="github-icon">
+      <i class="fab fa-github"></i>
+    </a>
+  </footer>
+
+  <script>
+    const createPasskeyBtn = document.getElementById('create-passkey-btn');
+    const getSignatureBtn = document.getElementById('get-signature-btn');
+    const modal = document.getElementById('username-modal');
+    const usernameForm = document.getElementById('username-form');
+    const usernameInput = document.getElementById('username-input');
+    const buttonContainer = document.getElementById('button-container');
+    const tableContainer = document.getElementById('table-container');
+
+    createPasskeyBtn.addEventListener('click', () => {
+      modal.style.display = 'block';
+      usernameInput.focus();
+    });
+
+    window.addEventListener('click', (event) => {
+      if (event.target === modal) {
+        modal.style.display = 'none';
+      }
+    });
+
+    usernameForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const username = usernameInput.value;
+      console.log('Username submitted:', username);
+      showTable();
+    });
+
+    getSignatureBtn.addEventListener('click', () => {
+      showTable();
+    });
+
+    function showTable() {
+      modal.style.display = 'none';
+      buttonContainer.style.display = 'none';
+      tableContainer.style.display = 'block';
+      usernameInput.value = '';
+    }
+  </script>
+</body>
+</html>
