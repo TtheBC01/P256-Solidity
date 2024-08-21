@@ -515,7 +515,7 @@
             const sString = sValueUint8Array.reduce((t, x) => t + x.toString(16).padStart(2, '0'), '');
             console.log("S Value: ", sString);
 
-            const sigAndMsgPayload = msgPayload + `, r: 0x${rString}, s: 0x${sString}`
+            const sigAndMsgPayload = msgPayload + `r: 0x${rString}, s: 0x${sString}`
 
             showCopyToClipboardButton(sigAndMsgPayload, "Signature and Message Data Copied: ");
 
