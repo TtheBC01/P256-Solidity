@@ -150,7 +150,8 @@
 </head>
 
 <body>
-    <h1>Passkey and Signature</h1>
+    <h1>WebAuthn Pubkey and Signature Generator</h1>
+    <h2>Generate keys, signatures, and message payloads to use with Solidity.</h2>
 
     <div id="button-container" class="buttons">
         <button id="create-passkey-btn">Create Passkey</button>
@@ -298,7 +299,7 @@
                 console.log("Challenge: ", challenge);
                 console.log("Origin: ", origin);
 
-                const msgPayload = `authenticatorData: 0x${(new Uint8Array(authenticatorData)).reduce((t, x) => t + x.toString(16).padStart(2, '0'), '')}, clientJSONData: ${JSON.stringify(clientDataJSON)}, `
+                const msgPayload = `authenticatorData: 0x${(new Uint8Array(authenticatorData)).reduce((t, x) => t + x.toString(16).padStart(2, '0'), '')}, clientJSONData: ${JSON.stringify(formatArrayBuf(clientDataJSON))}, `
                 const parsedSignatureBuffer = parseRawSignature(signature, msgPayload);
                 console.log("Raw Signature:", signature);
                 verifySignature(id, authenticatorData, clientDataJSON, parsedSignatureBuffer);
