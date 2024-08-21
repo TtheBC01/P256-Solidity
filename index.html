@@ -163,7 +163,7 @@
             <form id="username-form">
                 <label for="username-input">Username:</label>
                 <input type="text" id="username-input" name="username-input" required>
-                <button type="submit" onclick="createPasskey()">Submit</button>
+                <button type="submit">Submit</button>
             </form>
         </div>
     </div>
@@ -252,7 +252,7 @@
         usernameForm.addEventListener('submit', (event) => {
             event.preventDefault();
             const username = usernameInput.value;
-            console.log('Username submitted:', username);
+            createPasskey();
             showTable();
         });
 
