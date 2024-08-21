@@ -154,7 +154,7 @@
 
     <div id="button-container" class="buttons">
         <button id="create-passkey-btn">Create Passkey</button>
-        <button id="get-signature-btn" onclick="getPasskey()">Get Signature</button>
+        <button id="get-signature-btn">Get Signature</button>
     </div>
 
     <div id="username-modal" class="modal">
@@ -187,8 +187,6 @@
         const copyToClipboardContainer = document.getElementById('copy-to-clipboard');
         const copyBtn = document.getElementById('copy-btn');
 
-        let username;
-
         // To get the value when the form is submitted
         createPasskeyBtn.addEventListener('click', () => {
             modal.style.display = 'block';
@@ -204,11 +202,11 @@
         usernameForm.addEventListener('submit', (event) => {
             event.preventDefault();
             const username = usernameInput.value;
-            createPasskey();
+            createPasskey(username);
         });
 
         getSignatureBtn.addEventListener('click', () => {
-            showCopyToClipboardButton('blah', "Sig data copied: ");
+            getPasskey();
         });
 
         function showCopyToClipboardButton(value, msg) {
@@ -222,7 +220,7 @@
             });
         }
 
-        function createPasskey() {
+        function createPasskey(username) {
 
             console.log("Username: ", username)
 
@@ -256,15 +254,6 @@
                 // parse the public key bytes array to separate key bytes from metadata bytes
                 // (not necessary for use with crypto.subtle.verify)
                 parseRawPublicKey(pubKey)
-
-                console.log("Key ID:", id);
-                console.log("Raw Public Key:", pubKey);
-                console.log("Attestation Object: ", attestationObject);
-                console.log("Client Data JSON: ", formatArrayBuf(clientDataJSON));
-
-                document.getElementById("keyid").innerHTML = "Key ID: " + id;
-                document.getElementById("keychallenge").innerHTML = "Challenge: " + truncateString(challenge);
-                document.getElementById("keyorigin").innerHTML = "Origin: " + origin;
             })
         }
 
