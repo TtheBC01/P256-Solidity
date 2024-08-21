@@ -208,17 +208,17 @@
         });
 
         getSignatureBtn.addEventListener('click', () => {
-            showCopyToClipboardButton('blah');
+            showCopyToClipboardButton('blah', "Sig data copied: ");
         });
 
-        function showCopyToClipboardButton(value) {
+        function showCopyToClipboardButton(value, msg) {
             modal.style.display = 'none';
             buttonContainer.style.display = 'none';
             copyToClipboardContainer.style.display = 'block';
 
             copyBtn.addEventListener('click', () => {
                 navigator.clipboard.writeText(value);
-                alert('Copied to clipboard: ' + value);
+                alert(msg + value);
             });
         }
 
@@ -481,7 +481,7 @@
 
             const parsedPublicKey = "Qx: " + qx + " Qy: " + qy;
 
-            showCopyToClipboardButton(username);
+            showCopyToClipboardButton(username, "Pubkey Data Copied: ");
         }
 
         // returns a 64-byte ArrayBuffer containing r and s concatenated together
