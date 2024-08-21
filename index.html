@@ -298,7 +298,7 @@
                 console.log("Challenge: ", challenge);
                 console.log("Origin: ", origin);
 
-                const msgPayload = `authenticatorData: 0x${(new Uint8Array(authenticatorData)).reduce((t, x) => t + x.toString(16).padStart(2, '0'), '')}, clientJSONData: ${clientDataJSON}, `
+                const msgPayload = `authenticatorData: 0x${(new Uint8Array(authenticatorData)).reduce((t, x) => t + x.toString(16).padStart(2, '0'), '')}, clientJSONData: ${JSON.stringify(clientDataJSON)}, `
                 const parsedSignatureBuffer = parseRawSignature(signature, msgPayload);
                 console.log("Raw Signature:", signature);
                 verifySignature(id, authenticatorData, clientDataJSON, parsedSignatureBuffer);
