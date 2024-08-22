@@ -23,8 +23,22 @@ npx hardhat ignition deploy ./ignition/modules/Lock.ts
 The tests in [`Lock.ts`](/test/Lock.ts) show how to take the components returned by the WebAuthn (explained below) and verify them in Solidity. 
 You can generate your own public keys, signatures, and message components using the helper page at https://toddchapman.io/P256-Solidity. 
 
-First, click "Create Passkey" and use the copy button to get the `qx` and `qy` values. Once you have created a passkey for that site, generate
+First, click "Create Passkey" and use the copy button to get the `qx` and `qy` values. 
+
+Example of the output:
+
+```javascript
+Qx: 0x33d94e6be65165fc34bbf8864448330e3fca96e2f85d21f4e95663e0302dc63f Qy: 0x06b74256c369cb70c9d62ef967778c1ae3850a9d8a3ea80ffa9955088ddcba0e
+```
+
+Once you have created a passkey for that site, generate
 a signature and its message payload by clicking "Get Signature" and again click the copy button put all the components into your clipboard. 
+
+Example of the output:
+
+```javascript
+authenticatorData: 0xd8a0bf4f8294146ab009857f0c54e7b47dd13980a9ce558becd61dbced0bd8411900000000, clientJSONData: "{\"type\":\"webauthn.get\",\"challenge\":\"TG9naW4gdG8gUGFzc2tleSBEZW1v\",\"origin\":\"https://toddchapman.io\",\"crossOrigin\":false}", r: 0x1e148785b73d1b0e8e60559068c657733ae9cd8e9a8f435cf08a832ee7b4f61b, s: 0x998def16d28ae1aab86fa8221329fe37647a6388844c77dc774f0916e037bfa6
+```
 
 Be sure to sanitize the `clientDataJSON` by removing escape characters from the returned string. 
 
