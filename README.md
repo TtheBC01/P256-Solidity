@@ -21,7 +21,8 @@ npx hardhat ignition deploy ./ignition/modules/Lock.ts
 ### Generating your own WebAuthn components
 
 The tests in [`Lock.ts`](/test/Lock.ts) show how to take the components returned by the WebAuthn (explained below) and verify them in Solidity. 
-You can generate your own public keys, signatures, and message components using the helper page at https://toddchapman.io/P256-Solidity. 
+You can generate your own public keys, signatures, and message components using the helper page at https://toddchapman.io/P256-Solidity (see 
+[`index.html`](./index.html)). 
 
 First, click "Create Passkey" and use the copy button to get the `qx` and `qy` values. 
 
