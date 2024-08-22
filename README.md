@@ -18,6 +18,16 @@ npx hardhat ignition deploy ./ignition/modules/Lock.ts
 > pulled from the OZ github master branch. You can enable `secp256r1` [precompile](https://hardhat.org/hardhat-network/docs/reference#enablerip7212) 
 > in hardhat.
 
+### Generating your own WebAuthn components
+
+The tests in [`Lock.ts`](/test/Lock.ts) show how to take the components returned by the WebAuthn (explained below) and verify them in Solidity. 
+You can generate your own public keys, signatures, and message components using the helper page at https://toddchapman.io/P256-Solidity. 
+
+First, click "Create Passkey" and use the copy button to get the `qx` and `qy` values. Once you have created a passkey for that site, generate
+a signature and its message payload by clicking "Get Signature" and again click the copy button put all the components into your clipboard. 
+
+Be sure to sanitize the `clientDataJSON` by removing escape characters from the returned string. 
+
 ## The WebAuthn API
 
 The Web Authentication API has been implemented by all major browsers and provides a seamless and secure authentication experience for end users based on public key cryptography. 
