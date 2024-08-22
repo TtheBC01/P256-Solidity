@@ -466,7 +466,7 @@
             console.log("QX: ", `0x${qx}`);
             console.log("QY: ", `0x${qy}`);
 
-            const parsedPublicKey = "Qx: " + qx + " Qy: " + qy;
+            const parsedPublicKey = "Qx: " + `0x${qx}` + " Qy: " + `0x${qy}`;
 
             showCopyToClipboardButton(parsedPublicKey, "Pubkey Data Copied: ");
         }
@@ -537,26 +537,6 @@
             }
             // remove superfluous 0's if too long
             return integerBytes.slice(-32);
-        }
-
-        function truncateString(str) {
-            if (str.length <= 30) {
-                return str; // No need to truncate if the string is 10 characters or less
-            }
-
-            // Extract the first 5 characters
-            const firstPart = str.slice(0, 15);
-
-            // Extract the last 5 characters
-            const lastPart = str.slice(-15);
-
-            // Replace the middle characters with "..."
-            const middlePart = "...";
-
-            // Concatenate the parts to form the truncated string
-            const truncatedString = firstPart + middlePart + lastPart;
-
-            return truncatedString;
         }
     </script>
 </body>
