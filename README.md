@@ -111,7 +111,7 @@ navigator.credentials.get({
 According to the [W3C spec section 7.2](https://www.w3.org/TR/webauthn-2/#sctn-verifying-assertion) step 12, internally the challenge string is *base64url* 
 encoded before signing. 
 
-After retrieving the result of `navigator.credential.get`, the contents of `clientDataJSON` will look something like this:
+After retrieving the result of `navigator.credential.get`, the contents of the decoded `clientDataJSON` (it is returned as a `ArrayBuffer`) will look something like this:
 
 ```javascript
 {"type":"webauthn.create","challenge":"QXJiaXRyYXJ5IG1lc3NhZ2UgdGV4dCBnb2VzIGhlcmU=","origin":"https://toddchapman.io","crossOrigin":false,"other_keys_can_be_added_here":"do not compare clientDataJSON against a template. See https://goo.gl/yabPex"}
