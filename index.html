@@ -261,7 +261,7 @@
         function getPasskey() {
             console.log("Generating Passkey Signature")
             const publicKey = {
-                challenge: new TextEncoder().encode("0xE936e8FAf4A5655469182A49a505055B71C17604"),
+                challenge: 0xE936e8FAf4A5655469182A49a505055B71C17604,
                 rpId: window.location.host,
                 timeout: 60_000,
             };
