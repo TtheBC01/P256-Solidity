@@ -249,6 +249,8 @@
                 const { clientDataJSON, attestationObject } = pubKeyCredential.response;
                 const { challenge, origin } = JSON.parse(formatArrayBuf(clientDataJSON));
 
+                console.log("Key ID: ", id);
+
                 // save the public key so we can use it for signature verification later
                 storePublicKey(id, pubKey);
 
