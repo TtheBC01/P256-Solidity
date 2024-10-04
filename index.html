@@ -256,7 +256,7 @@
 
                 // parse the public key bytes array to separate key bytes from metadata bytes
                 // (not necessary for use with crypto.subtle.verify)
-                parseRawPublicKey(pubKey)
+                parseRawPublicKey(id, pubKey)
             })
         }
 
@@ -422,7 +422,7 @@
             return arrayBuffer;
         }
 
-        function parseRawPublicKey(publicKeyArray) {
+        function parseRawPublicKey(id, publicKeyArray) {
             pubKeyView = new Uint8Array(publicKeyArray);
 
             const headerByte = pubKeyView[0];
@@ -471,7 +471,7 @@
             console.log("QX: ", `0x${qx}`);
             console.log("QY: ", `0x${qy}`);
 
-            const parsedPublicKey = "Qx: " + `0x${qx}` + " Qy: " + `0x${qy}`;
+            const parsedPublicKey = `keyId: ${id}` + "Qx: " + `0x${qx}` + " Qy: " + `0x${qy}`;
 
             showCopyToClipboardButton(parsedPublicKey, "Pubkey Data Copied: ");
         }
