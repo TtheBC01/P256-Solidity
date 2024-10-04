@@ -6,20 +6,19 @@ import { expect } from "chai";
 import hre from "hardhat";
 import { getAddress, parseGwei } from "viem";
 
-// You can generate new valid P256 parameters at https://toddchapman.io/passkey-demo
-// The values are avaible in the console
-const QX = '0x46b816eb4bafcdd992c8f367f14c49324a900322de56917ab269cc41a12adfc3';
-const QY = '0x5c38792a526eb57d2795c2a029708394bd61273c785c9a6a35fb93b54f07be5c';
+const QX = '0x91bb3be0106203c6877db6a2c65a87e725e3c741dfb4e16e39500cdeb9aab4bf';
+const QY = '0xef8fbbbd1e8ebd360a5f5926087c1c9504c5242ab14a19039d3986049f935bde';
 
-const R_VALUE = '0x678dc2d69bad88a5cc50c3269bce4aba402161274f7daa0595190eb4adddb1f4';
-const S_VALUE = '0xb67e2b7d08ddd672b3c899d1b26328d74c776a261f33bc2328c414ee50c08ae6';
+const R_VALUE = '0xed38e18c1f51e89955af377177a7baeab24340c200d3d80d5cc24ef49021c7ea';
+const S_VALUE = '0xb7a4b31248b03d497ac394b85d229f6b29d966f0ec31d85c702e94afc6bbdb0f';
 
-const HASH = '0x9fb01c132978415b8294215f17ce29e6297b28efd19209ebbdb50bccc6cb888b';
+const HASH = '0x4d8312397eb36a700156cc29be35c925372532d7bc42fa34b1c9df72c721ebec';
 
 const AUTH_DATA_BYTES = `0x${'d8a0bf4f8294146ab009857f0c54e7b47dd13980a9ce558becd61dbced0bd8411900000000'}`;
 const CLIENT_DATA_JSON_LEFT = '{"type":"webauthn.get","challenge":"';
-const CHALLENGE = 'Login to Passkey Demo'; // be careful not to use reserved characters in your challenge string
-const CHALLENGE_BASE64 = 'TG9naW4gdG8gUGFzc2tleSBEZW1v';
+const CHALLENGE = '0x9fEad8B19C044C2f404dac38B925Ea16ADaa2954';
+
+const CHALLENGE_BASE64 = 'n-rYsZwETC9ATaw4uSXqFq2qKVQ';
 const CLIENT_DATA_JSON_RIGHT = '","origin":"https://toddchapman.io","crossOrigin":false}';
 
 describe("Lock", function () {

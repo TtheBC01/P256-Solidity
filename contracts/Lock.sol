@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts/utils/Base64.sol";
+//import "@openzeppelin/contracts/utils/Base64.sol";
+import "./Base64.sol";
 import "./P256.sol";
 
 // Uncomment this line to use console.log
@@ -89,14 +90,14 @@ contract Lock {
     // @notice Verifies a P256 signature against supplied authenticatorData bytes and clientDataJSON strings
     // @param authenticatorData bytes returned by navigator.credentials.get response
     // @param clientDataJSONLeft JSON string of all keys/values to the left of the challenge string (inluding opening ")
-    // @param challenge the unencoded challenge string
+    // @param challenge and address that was signed by the user passkey
     // @param clientDataJSONRight JSON string of all keys/vaules to the right of the challenge string (including closing ")
     // @param r The r component of the P256 signature
     // @param s The s component of the P256 signature (must be < N/2)
     function withdrawWithClientDataJSONComputeBase64(
         bytes memory authenticatorData, 
         string memory clientDataJSONLeft, 
-        string memory challenge, 
+        address challenge, 
         string memory clientDataJSONRight, 
         bytes32 r, 
         bytes32 s
@@ -108,8 +109,8 @@ contract Lock {
             s = bytes32(us);
         }
         
-        // NOTE: Do something with the challenge string, like verify that it encodes something, before sig verification
-        string memory clientDataJSON = string.concat(clientDataJSONLeft, Base64.encode(bytes(challenge)), clientDataJSONRight);
+        // NOTE: Do something with the challenge, like verify that it matches something, before sig verification
+        string memory clientDataJSON = string.concat(clientDataJSONLeft, Base64.encodeURL(bytes.concat(bytes20(uint160(challenge)))), clientDataJSONRight);
         bytes32 cDataHash = sha256(bytes(clientDataJSON));
         bytes32 h = sha256(bytes.concat(authenticatorData,cDataHash));
 
@@ -120,5 +121,29 @@ contract Lock {
         emit Withdrawal(address(this).balance, block.timestamp);
 
         owner.transfer(address(this).balance);
+    }
+
+    function stringToAddress(string memory str) public pure returns (address) {
+        bytes memory strBytes = bytes(str);
+        require(strBytes.length == 42, "Invalid address length");
+        bytes memory addrBytes = new bytes(20);
+
+        for (uint i = 0; i < 20; i++) {
+            addrBytes[i] = bytes1(hexCharToByte(strBytes[2 + i * 2]) * 16 + hexCharToByte(strBytes[3 + i * 2]));
+        }
+
+        return address(uint160(bytes20(addrBytes)));
+    }
+
+    function hexCharToByte(bytes1 char) internal pure returns (uint8) {
+        uint8 byteValue = uint8(char);
+        if (byteValue >= uint8(bytes1('0')) && byteValue <= uint8(bytes1('9'))) {
+            return byteValue - uint8(bytes1('0'));
+        } else if (byteValue >= uint8(bytes1('a')) && byteValue <= uint8(bytes1('f'))) {
+            return 10 + byteValue - uint8(bytes1('a'));
+        } else if (byteValue >= uint8(bytes1('A')) && byteValue <= uint8(bytes1('F'))) {
+            return 10 + byteValue - uint8(bytes1('A'));
+        }
+        revert("Invalid hex character");
     }
 }
