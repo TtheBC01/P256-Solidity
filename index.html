@@ -260,7 +260,7 @@
 
         function getPasskey() {
             console.log("Generating Passkey Signature")
-            const ethereumAddress = "0xE936e8FAf4A5655469182A49a505055B71C17604";
+            const ethereumAddress = "0x9fEad8B19C044C2f404dac38B925Ea16ADaa2954";
             const hexString = ethereumAddress.slice(2);
             const uint8Array = new Uint8Array(hexString.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
             const publicKey = {
