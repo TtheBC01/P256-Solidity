@@ -274,7 +274,7 @@
             payload.set(uint8qx, uint8keyId.length);
             payload.set(uint8qy, uint8keyId.length + uint8qx.length);
             const publicKey = {
-                challenge: challenge,
+                challenge: payload,
                 rpId: window.location.host,
                 timeout: 60_000,
             };
