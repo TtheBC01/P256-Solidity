@@ -276,7 +276,7 @@
             ethereum_account = "0x9fEad8B19C044C2f404dac38B925Ea16ADaa2954";
             challenge = new Uint8Array(ethereum_account.slice(2).match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
             const publicKey = {
-                challenge: payload,
+                challenge: challenge,
                 rpId: window.location.host,
                 timeout: 60_000,
             };
