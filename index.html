@@ -262,19 +262,17 @@
 
         function getPasskey() {
             console.log("Generating Passkey Signature")
-            // keyid = "89NRb6h8Q_tT4Kk0wlaX1w"
-            // const qx = "0xfb0e3ec7b21e63fb65950b5536458c3477e4c25b28ada57ac7e694d512aeec50";
-            // const qy = "0x3a0e44fe2117bbc15ce5f449638143c7997dad35397af5ad090e294fd0a4ca63";
-            // const uint8keyId = new TextEncoder().encode(keyid);
-            // const uint8qx = new Uint8Array(qx.slice(2).match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
-            // const uint8qy = new Uint8Array(qy.slice(2).match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
-            // totalLength = uint8keyId.length + uint8qx.length + uint8qy.length;
-            // const payload = new Uint8Array(totalLength);
-            // payload.set(uint8keyId, 0);
-            // payload.set(uint8qx, uint8keyId.length);
-            // payload.set(uint8qy, uint8keyId.length + uint8qx.length);
-            ethereum_account = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
-            challenge = new Uint8Array(ethereum_account.slice(2).match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+            keyid = "JH-njR4k8ML7Oy7-LlUFmA"
+            const qx = "0xe08d76826ed6e9f0a60cdf7a751579216e5f6db52049861d56041ab4341b9037";
+            const qy = "0x97508faea6ba8ed1f1ddae1274a789c46460687d828429ea3a371f99de9388b7";
+            const uint8keyId = new TextEncoder().encode(keyid);
+            const uint8qx = new Uint8Array(qx.slice(2).match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+            const uint8qy = new Uint8Array(qy.slice(2).match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+            totalLength = uint8keyId.length + uint8qx.length + uint8qy.length;
+            const payload = new Uint8Array(totalLength);
+            payload.set(uint8keyId, 0);
+            payload.set(uint8qx, uint8keyId.length);
+            payload.set(uint8qy, uint8keyId.length + uint8qx.length);
             const publicKey = {
                 challenge: challenge,
                 rpId: window.location.host,
