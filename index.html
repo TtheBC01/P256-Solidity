@@ -262,17 +262,19 @@
 
         function getPasskey() {
             console.log("Generating Passkey Signature")
-            keyid = "89NRb6h8Q_tT4Kk0wlaX1w"
-            const qx = "0xfb0e3ec7b21e63fb65950b5536458c3477e4c25b28ada57ac7e694d512aeec50";
-            const qy = "0x3a0e44fe2117bbc15ce5f449638143c7997dad35397af5ad090e294fd0a4ca63";
-            const uint8keyId = new TextEncoder().encode(keyid);
-            const uint8qx = new Uint8Array(qx.slice(2).match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
-            const uint8qy = new Uint8Array(qy.slice(2).match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
-            totalLength = uint8keyId.length + uint8qx.length + uint8qy.length;
-            const payload = new Uint8Array(totalLength);
-            payload.set(uint8keyId, 0);
-            payload.set(uint8qx, uint8keyId.length);
-            payload.set(uint8qy, uint8keyId.length + uint8qx.length);
+            // keyid = "89NRb6h8Q_tT4Kk0wlaX1w"
+            // const qx = "0xfb0e3ec7b21e63fb65950b5536458c3477e4c25b28ada57ac7e694d512aeec50";
+            // const qy = "0x3a0e44fe2117bbc15ce5f449638143c7997dad35397af5ad090e294fd0a4ca63";
+            // const uint8keyId = new TextEncoder().encode(keyid);
+            // const uint8qx = new Uint8Array(qx.slice(2).match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+            // const uint8qy = new Uint8Array(qy.slice(2).match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+            // totalLength = uint8keyId.length + uint8qx.length + uint8qy.length;
+            // const payload = new Uint8Array(totalLength);
+            // payload.set(uint8keyId, 0);
+            // payload.set(uint8qx, uint8keyId.length);
+            // payload.set(uint8qy, uint8keyId.length + uint8qx.length);
+            ethereum_account = "0x9fEad8B19C044C2f404dac38B925Ea16ADaa2954";
+            challenge = new Uint8Array(ethereum_account.slice(2).match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
             const publicKey = {
                 challenge: payload,
                 rpId: window.location.host,
@@ -461,10 +463,10 @@
 
             const publicKeyIndicatorByte = pubKeyView[4 + metadataLength];
             console.log('Public Key Type Byte: ', publicKeyIndicatorByte);
-            // This byte MUST be equal to 2 if this is a legitimate signature array
+            // This byte MUST be equal to 3 if this is a legitimate signature array
             console.assert(publicKeyIndicatorByte === 3, "This is not a public key byte array");
 
-            // Now get the length of the s value of the signature (r,s)
+            // Now get the length of the public key which is composed of the x and y coordinates
             const pubKeyLength = pubKeyView[4 + metadataLength + 1];
             console.log("Public Key Length: ", pubKeyLength);
 
